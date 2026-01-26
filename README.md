@@ -1,141 +1,141 @@
 # mayday-idp
 Platform Engineering lab project focused on GitOps and developer self-service.
 
-# 🧪 IDP de Laboratório (Internal Developer Platform)
+# 🧪 Laboratory IDP (Internal Developer Platform)
 
-## 📌 Visão Geral
+## 📌 Overview
 
-Este repositório representa um **IDP (Internal Developer Platform) de laboratório**, criado com o objetivo de **padronizar, automatizar e escalar** a criação e o gerenciamento de aplicações em Kubernetes.
+This repository represents a **laboratory Internal Developer Platform (IDP)** created to **standardize, automate, and scale** the creation and management of Kubernetes applications.
 
-O foco principal é fornecer uma **experiência self-service para desenvolvedores**, reduzindo fricção operacional e garantindo **consistência entre ambientes** (staging e production), seguindo boas práticas de Platform Engineering e DevOps.
+The main goal is to provide a **self-service developer experience**, reducing operational friction while ensuring **consistency across environments** (staging and production), following Platform Engineering and DevOps best practices.
 
-Este projeto é **experimental/laboratorial**, mas pensado com mentalidade de **ambiente corporativo real**.
-
----
-
-## 🎯 Objetivos do IDP
-
-* Padronizar a criação de aplicações Kubernetes
-* Reduzir trabalho manual e dependência do time de plataforma
-* Garantir consistência entre **STG** e **PRD**
-* Facilitar onboarding de novas aplicações
-* Aplicar práticas modernas de GitOps
-* Servir como base de estudo e evolução técnica
+This is an **experimental/lab project**, but designed with a **real-world, enterprise mindset**.
 
 ---
 
-## 🧩 Componentes Principais
+## 🎯 IDP Goals
 
-O IDP é composto pelos seguintes pilares:
+* Standardize Kubernetes application creation
+* Reduce manual work and platform team dependency
+* Ensure consistency between **STG** and **PRD**
+* Simplify onboarding of new applications
+* Apply modern GitOps practices
+* Serve as a continuous learning and evolution platform
+
+---
+
+## 🧩 Core Components
+
+The IDP is composed of the following pillars:
 
 ### 🔹 Kubernetes
 
-Ambiente base de execução das aplicações, utilizado em cluster local de laboratório.
+The base runtime environment for applications, running in a local laboratory cluster.
 
 ### 🔹 Helm
 
-Responsável por:
+Responsible for:
 
-* Templates padronizados de recursos Kubernetes
-* Separação clara entre lógica e configuração
-* Reuso e versionamento de charts
+* Standardized Kubernetes resource templates
+* Clear separation between logic and configuration
+* Chart reuse and versioning
 
-Cada aplicação criada segue um **Helm Chart base**, com valores específicos para **staging** e **production**.
+Each application is created from a **base Helm Chart**, with specific values for **staging** and **production**.
 
 ### 🔹 Backstage
 
-Atua como **portal do desenvolvedor**, oferecendo:
+Acts as the **developer portal**, providing:
 
-* Criação de novas aplicações via templates
-* Padronização de metadados
-* Visão centralizada das aplicações
+* Application creation via templates
+* Standardized metadata
+* Centralized visibility of services
 
-O Backstage é a porta de entrada para o self-service do IDP.
+Backstage is the entry point for the IDP self-service experience.
 
 ### 🔹 Argo CD
 
-Responsável por:
+Responsible for:
 
-* GitOps
-* Sincronização declarativa entre Git e Kubernetes
-* Deploy automatizado para STG e PRD
+* GitOps workflows
+* Declarative synchronization between Git and Kubernetes
+* Automated deployments to STG and PRD
 
-O Argo CD garante que o estado do cluster reflita exatamente o que está versionado no repositório.
-
----
-
-## 🧱 Conceito de Padronização
-
-Toda aplicação criada através do IDP já nasce com:
-
-* Ambiente **staging** e **production**
-* Recursos Kubernetes padronizados (Deployment, Service, Ingress, etc.)
-* Estratégias de rollout definidas
-* Práticas básicas de observabilidade e confiabilidade
-
-Isso reduz decisões repetitivas e erros de configuração.
+Argo CD ensures the cluster state always reflects what is versioned in Git.
 
 ---
 
-## 🔄 Fluxo de Criação de uma Nova Aplicação
+## 🧱 Standardization Concept
 
-1. O "cliente" (dev ou time) solicita uma nova aplicação
-2. O Backstage gera o esqueleto do projeto a partir de um template
-3. O repositório da aplicação known recebe:
+Every application created through the IDP starts with:
 
-   * Helm Chart base
-   * Values para STG e PRD
-4. O Argo CD detecta a mudança
-5. A aplicação é implantada automaticamente no cluster
+* **Staging** and **Production** environments
+* Standardized Kubernetes resources (Deployment, Service, Ingress, etc.)
+* Predefined rollout strategies
+* Baseline observability and reliability practices
 
-Tudo isso sem interação manual direta com o cluster.
+This approach minimizes repetitive decisions and configuration errors.
 
 ---
 
-## 🧪 Ambiente de Laboratório
+## 🔄 Application Creation Flow
 
-Este IDP roda em ambiente local utilizando:
+1. A "client" (developer or team) requests a new application
+2. Backstage generates the project skeleton from a template
+3. The application repository includes:
+
+   * Base Helm Chart
+   * STG and PRD values files
+4. Argo CD detects the changes
+5. The application is automatically deployed to the cluster
+
+No direct manual interaction with the cluster is required.
+
+---
+
+## 🧪 Laboratory Environment
+
+This IDP runs in a local lab environment using:
 
 * Docker
 * kind (Kubernetes in Docker)
 
-O objetivo é simular **cenários reais de plataforma**, mantendo baixo custo e alta flexibilidade para testes.
+The goal is to simulate **real platform scenarios** with low cost and high flexibility for experimentation.
 
 ---
 
-## 📚 Status do Projeto
+## 📚 Project Status
 
-* 🔧 Em desenvolvimento
-* 🧪 Uso educacional e experimental
-* 🚀 Evolução contínua baseada em estudos e boas práticas
+* 🔧 Under development
+* 🧪 Educational and experimental usage
+* 🚀 Continuously evolving based on best practices
 
 ---
 
-## 🧠 Motivação
+## 🧠 Motivation
 
-Este projeto reflete uma evolução natural de estudos em:
+This project reflects a natural evolution of studies and hands-on practice in:
 
 * Platform Engineering
 * DevOps
 * SRE
 * GitOps
 
-Além de servir como laboratório técnico, o IDP também funciona como **ativo de portfólio**, demonstrando capacidade de desenho de plataformas, não apenas uso de ferramentas.
+Beyond being a technical lab, the IDP also serves as a **portfolio asset**, demonstrating platform design skills — not just tool usage.
 
 ---
 
-## 🔮 Próximos Passos (alto nível)
+## 🔮 Next Steps (High Level)
 
-* Evolar templates do Backstage
-* Refinar Helm Charts base
-* Evoluir estratégias de deploy
-* Adicionar políticas e validações
-* Melhorar experiência do desenvolvedor
+* Evolve Backstage templates
+* Refine base Helm Charts
+* Improve deployment strategies
+* Add policies and validations
+* Enhance developer experience
 
 ---
 
-## 📎 Observação Final
+## 📎 Final Notes
 
-Este repositório **não é apenas sobre ferramentas**, mas sobre **arquitetura, padronização e experiência do desenvolvedor**.
+This repository is **not just about tools**, but about **architecture, standardization, and developer experience**.
 
-Ele representa uma base sólida para evoluções futuras, seja para estudos avançados ou para cenários corporativos reais.
+It provides a solid foundation for future evolution, whether for advanced studies or real corporate use cases.
