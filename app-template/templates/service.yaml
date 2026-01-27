@@ -5,9 +5,10 @@ metadata:
   labels:
     {{- include "app.labels" . | nindent 4 }}
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ default "ClusterIP" .Values.service.type }}
   selector:
-    app: {{ .Values.app.name }}
+    app: {{ include "app.name" . }}
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: {{ .Values.service.port }}
+    - name: http
+      port: {{ required "service.port is required" .Values.service.port }}
+      targetPort: {{ required "service.port is required" .Values.service.port }}
