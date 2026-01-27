@@ -1,3 +1,6 @@
+{{- $appName := required "app.name is required" .Values.app.name -}}
+{{- $imageRepo := required "image.repository is required" .Values.image.repository -}}
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -8,16 +11,16 @@ spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Values.app.name }}
+      app: {{ $appName }}
   template:
     metadata:
       labels:
-        app: {{ .Values.app.name }}
+        app: {{ $appName }}
         {{- include "app.labels" . | nindent 8 }}
     spec:
       containers:
         - name: app
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: "{{ $imageRepo }}:{{ .Values.image.tag }}"
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           livenessProbe:
@@ -30,4 +33,3 @@ spec:
               path: {{ .Values.probes.readiness.path }}
               port: {{ .Values.service.port }}
             initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
-
