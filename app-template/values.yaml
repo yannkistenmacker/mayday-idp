@@ -23,10 +23,10 @@ resources:
 
 probes:
   liveness:
-    path: /health
+    path: /
     initialDelaySeconds: 10
   readiness:
-    path: /ready
+    path: /
     initialDelaySeconds: 5
 
 ingress:
