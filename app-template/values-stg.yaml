@@ -1,0 +1,12 @@
+app:
+  environment: stg
+
+replicaCount: 1
+
+resources:
+  limits:
+    cpu: 300m
+    memory: 256Mi
+
+hpa:
+  enabled: false

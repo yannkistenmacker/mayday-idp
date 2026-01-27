@@ -1,0 +1,49 @@
+app:
+  name: ""
+  environment: ""
+
+image:
+  repository: ""
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+replicaCount: 2
+
+service:
+  type: ClusterIP
+  port: 80
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+probes:
+  liveness:
+    path: /health
+    initialDelaySeconds: 10
+  readiness:
+    path: /ready
+    initialDelaySeconds: 5
+
+ingress:
+  enabled: true
+  className: nginx
+
+hpa:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  cpuUtilization: 70
+
+pdb:
+  enabled: true
+  minAvailable: 1
+
+labels:
+  owner: ""
+  tier: "standard"
+

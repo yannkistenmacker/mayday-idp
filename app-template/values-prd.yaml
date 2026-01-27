@@ -1,0 +1,15 @@
+app:
+  environment: prd
+
+replicaCount: 3
+
+resources:
+  limits:
+    cpu: "1"
+    memory: 1Gi
+
+hpa:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+
