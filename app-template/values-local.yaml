@@ -1,0 +1,16 @@
+app:
+  name: my-local-app
+  environment: local
+
+image:
+  repository: nginx
+  tag: latest
+
+service:
+  type: ClusterIP
+  port: 80
+
+labels:
+  owner: platform
+  tier: dev
+
