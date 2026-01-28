@@ -16,7 +16,7 @@ labels:
 
 hpa:
   enabled: true
-  apiVersion: autoscaling/v2beta2
+  apiVersion: autoscaling/v2
 
   minReplicas: 1
   maxReplicas: 3
