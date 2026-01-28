@@ -14,3 +14,14 @@ labels:
   owner: platform
   tier: dev
 
+hpa:
+  enabled: true
+  apiVersion: autoscaling/v2beta2
+
+  minReplicas: 1
+  maxReplicas: 3
+
+  metrics:
+    cpu:
+      enabled: true
+      averageUtilization: 70
