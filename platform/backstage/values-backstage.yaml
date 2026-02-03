@@ -6,6 +6,10 @@ backend:
   baseUrl: http://192.168.0.12:30007
   listen:
     port: 7007
+  backend:
+  auth:
+    keys:
+      - secret: ${BACKSTAGE_AUTH_SECRET}
 
   database:
     client: sqlite3
