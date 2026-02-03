@@ -1,9 +1,9 @@
 app:
   title: Platform Backstage
-  baseUrl: http://localhost:7007
+  baseUrl: http://localhost:30007
 
 backend:
-  baseUrl: http://localhost:7007
+  baseUrl: http://localhost:30007
   listen:
     port: 7007
 
