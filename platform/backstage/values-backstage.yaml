@@ -1,13 +1,17 @@
 app:
   title: Platform Backstage
-  baseUrl: http://localhost:7007
+  baseUrl: http://192.168.0.12:7007
 
 backend:
-  baseUrl: http://localhost:7007
+  baseUrl: http://192.168.0.12:7007
   listen:
     port: 7007
+    host: 0.0.0.0
     auth:
       dangerouslyDisableDefaultAuthPolicy: true
+    
+  cors:
+    origin: http://192.168.0.12:7007
 
 
   database:
