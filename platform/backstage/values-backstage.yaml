@@ -1,17 +1,17 @@
 app:
   title: Platform Backstage
-  baseUrl: http://192.168.0.12:7007
+  baseUrl: http://192.168.0.12:30007
 
 backend:
-  baseUrl: http://192.168.0.12:7007
+  baseUrl: http://192.168.0.12:30007
   listen:
-    port: 7007
+    port: 30007
     host: 0.0.0.0
     auth:
       dangerouslyDisableDefaultAuthPolicy: true
     
   cors:
-    origin: http://192.168.0.12:7007
+    origin: http://192.168.0.12:30007
 
 
   database:
