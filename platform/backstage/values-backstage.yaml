@@ -3,13 +3,12 @@ app:
   baseUrl: http://localhost:30007
 
 backend:
-  baseUrl: http://localhost.12:30007
+  baseUrl: http://localhost:30007
   listen:
     port: 7007
-  backend:
-  auth:
-    keys:
-      - secret: ${BACKSTAGE_AUTH_SECRET}
+    auth:
+      dangerouslyDisableDefaultAuthPolicy: true
+
 
   database:
     client: sqlite3
@@ -29,7 +28,5 @@ extraEnvVars:
 
 
 auth:
-  providers:
-    guest:
-      enabled: true
-
+  environment: development
+  providers: {}
