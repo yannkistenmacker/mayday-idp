@@ -29,4 +29,7 @@ extraEnvVars:
 
 
 auth:
-  providers: {}
+  providers:
+    guest:
+      enabled: true
+
