@@ -20,5 +20,13 @@ integrations:
     - host: github.com
       token: ${GITHUB_TOKEN}
 
+extraEnvVars:
+  - name: BACKSTAGE_AUTH_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: backstage-auth-secret
+        key: BACKSTAGE_AUTH_SECRET
+
+
 auth:
   providers: {}
