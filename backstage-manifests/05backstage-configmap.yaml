@@ -13,6 +13,7 @@ data:
       baseUrl: http://backstage.local
       listen:
         port: 7007
+        host: 0.0.0.0
 
     database:
       client: pg
