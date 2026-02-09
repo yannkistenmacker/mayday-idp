@@ -1,0 +1,37 @@
+name: Build and Push Backstage
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set image version
+        id: vars
+        run: |
+          echo "VERSION=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: Login to registry
+        run: |
+          docker login registry.meudominio.com \
+            -u ${{ secrets.REGISTRY_USER }} \
+            -p ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Build image
+        run: |
+          docker build \
+            -t registry.meudominio.com/backstage:${{ env.VERSION }} \
+            -t registry.meudominio.com/backstage:latest \
+            .
+
+      - name: Push image
+        run: |
+          docker push registry.meudominio.com/backstage:${{ env.VERSION }}
+          docker push registry.meudominio.com/backstage:latest
