@@ -5,7 +5,7 @@ metadata:
   name: backstage
   namespace: backstage
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: backstage
@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: backstage
-          image: kisten/backstage:1.0.0
+          image: kisten/backstage:3.0.6
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
