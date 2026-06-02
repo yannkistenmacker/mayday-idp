@@ -43,7 +43,8 @@ sudo apt-get install -y \
   curl \
   gnupg \
   lsb-release \
-  apt-transport-https
+  apt-transport-https \
+  jq
 
 sudo update-ca-certificates
 
@@ -76,9 +77,14 @@ fi
 
 sudo systemctl enable docker
 sudo systemctl start docker
-sudo usermod -aG docker "$USER" || true
 
-echo "✅ Docker ready"
+# FIX: só adiciona ao grupo se não for root
+if [[ "$USER" != "root" ]]; then
+  sudo usermod -aG docker "$USER" || true
+  echo "⚠️  Logout/login necessário para aplicar o grupo docker ao usuário $USER"
+fi
+
+echo "✅ Docker $(docker --version) ready"
 
 # =========================
 # Golang
@@ -86,7 +92,10 @@ echo "✅ Docker ready"
 echo "🐹 Installing Golang..."
 
 if ! command -v go &> /dev/null; then
-  GO_VERSION=$(curl -fsSL https://go.dev/VERSION?m=text | head -n 1)
+  # FIX: validação de versão antes de usar
+  GO_VERSION=$(curl -fsSL "https://go.dev/VERSION?m=text" | head -n 1)
+  [[ -z "$GO_VERSION" ]] && { echo "❌ Falha ao obter versão do Go"; exit 1; }
+  echo "   → Go version: $GO_VERSION"
 
   curl -fsSL "https://go.dev/dl/${GO_VERSION}.linux-amd64.tar.gz" -o /tmp/go.tar.gz
   sudo rm -rf /usr/local/go
@@ -99,31 +108,7 @@ grep -q "/usr/local/go/bin" "$HOME/.bashrc" || \
 
 export PATH=$PATH:/usr/local/go/bin
 
-echo "✅ Golang ready"
-
-# =========================
-# Kubectl
-# =========================
-echo "☸️ Installing kubectl..."
-
-if ! command -v kubectl >/dev/null 2>&1; then
-    sudo install -m 0755 -d /etc/apt/keyrings
-
-    curl -fsSL \
-      https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key \
-      | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes.gpg
-
-    sudo chmod 644 /etc/apt/keyrings/kubernetes.gpg
-
-    cat <<EOF | sudo tee /etc/apt/sources.list.d/kubernetes.list >/dev/null
-deb [signed-by=/etc/apt/keyrings/kubernetes.gpg] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /
-EOF
-
-    sudo apt-get update
-    sudo apt-get install -y kubectl
-fi
-
-echo "✅ kubectl ready"
+echo "✅ Go $(go version) ready"
 
 # =========================
 # k3s (single-node lab)
@@ -141,31 +126,71 @@ sudo cp /etc/rancher/k3s/k3s.yaml "$KUBECONFIG_PATH"
 sudo chown "$USER:$USER" "$KUBECONFIG_PATH"
 chmod 600 "$KUBECONFIG_PATH"
 
+# KUBECONFIG disponível para sessões não-interativas (ex: systemd, cron)
 grep -q KUBECONFIG "$HOME/.bashrc" || \
   echo "export KUBECONFIG=$KUBECONFIG_PATH" >> "$HOME/.bashrc"
 
+grep -q "KUBECONFIG" /etc/environment || \
+  echo "KUBECONFIG=$KUBECONFIG_PATH" | sudo tee -a /etc/environment > /dev/null
+
 export KUBECONFIG="$KUBECONFIG_PATH"
 
+# FIX: sleep para evitar race condition antes do wait
+echo "   → Aguardando node registrar no cluster..."
+sleep 5
 kubectl wait node --for=condition=Ready --all --timeout=120s
 
 echo "✅ k3s ready"
 
 # =========================
-# Helm (official install script)
+# kubectl — alinhado com a versão do k3s
+# =========================
+echo "☸️  Installing kubectl..."
+
+if ! command -v kubectl >/dev/null 2>&1; then
+  # FIX: detecta versão minor do k3s para evitar divergência de API
+  K3S_MINOR=$(k3s --version | grep -oP 'v\d+\.\K\d+' | head -n1)
+  K8S_REPO_VERSION="v1.${K3S_MINOR}"
+  echo "   → Usando kubectl alinhado ao k3s: ${K8S_REPO_VERSION}"
+
+  sudo install -m 0755 -d /etc/apt/keyrings
+
+  curl -fsSL \
+    "https://pkgs.k8s.io/core:/stable:/${K8S_REPO_VERSION}/deb/Release.key" \
+    | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes.gpg
+
+  sudo chmod 644 /etc/apt/keyrings/kubernetes.gpg
+
+  cat <<EOF | sudo tee /etc/apt/sources.list.d/kubernetes.list >/dev/null
+deb [signed-by=/etc/apt/keyrings/kubernetes.gpg] https://pkgs.k8s.io/core:/stable:/${K8S_REPO_VERSION}/deb/ /
+EOF
+
+  sudo apt-get update
+  sudo apt-get install -y kubectl
+fi
+
+echo "✅ $(kubectl version --client --short 2>/dev/null || kubectl version --client) ready"
+
+# =========================
+# Helm — versão latest dinâmica
 # =========================
 echo "⛵ Installing Helm..."
 
 if ! command -v helm &> /dev/null; then
-  curl -fsSL https://get.helm.sh/helm-v3.14.4-linux-amd64.tar.gz -o /tmp/helm.tar.gz
+  # FIX: busca versão latest em vez de hardcode
+  HELM_VERSION=$(curl -fsSL https://api.github.com/repos/helm/helm/releases/latest \
+    | grep '"tag_name"' | cut -d'"' -f4)
+  [[ -z "$HELM_VERSION" ]] && { echo "❌ Falha ao obter versão do Helm"; exit 1; }
+  echo "   → Helm version: $HELM_VERSION"
 
+  curl -fsSL "https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz" -o /tmp/helm.tar.gz
   tar -xzf /tmp/helm.tar.gz -C /tmp
   sudo mv /tmp/linux-amd64/helm /usr/local/bin/helm
   sudo chmod +x /usr/local/bin/helm
-
   rm -rf /tmp/helm.tar.gz /tmp/linux-amd64
 fi
 
-echo "✅ Helm ready"
+echo "✅ Helm $(helm version --short) ready"
 
 # =========================
 # Argo CD (Helm)
@@ -177,34 +202,44 @@ helm repo update
 
 kubectl get namespace argocd &> /dev/null || kubectl create namespace argocd
 
+# FIX: values inline via heredoc — evita problemas de escape com --set no ponto
 helm upgrade --install argocd argo/argo-cd \
   --namespace argocd \
-  --set server.service.type=ClusterIP \
-  --set configs.params."server\.insecure"=true
+  -f - <<'EOF'
+server:
+  service:
+    type: ClusterIP
+configs:
+  params:
+    server.insecure: true
+EOF
 
 kubectl rollout status deployment/argocd-server -n argocd --timeout=300s
 
 echo "✅ Argo CD ready"
 
 # =========================
-# Validation
+# Validação final
 # =========================
-echo "🔍 Validating setup..."
-
+echo ""
+echo "🔍 Validando setup..."
+echo "---"
 docker --version
 go version
 kubectl version --client
-helm version
+helm version --short
+echo "---"
 kubectl get nodes
+echo "---"
 kubectl get pods -n argocd
-
 echo ""
 echo "🎉 DevOps Lab READY"
 echo ""
-echo "➡️ Argo CD access:"
+echo "➡️  Argo CD access:"
 echo "   kubectl port-forward svc/argocd-server -n argocd 8080:80"
 echo ""
-echo "➡️ Admin password:"
+echo "➡️  Admin password:"
 echo "   kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath='{.data.password}' | base64 -d"
 echo ""
-
+echo "⚠️  Se adicionou docker ao grupo, faça logout/login para aplicar."
+echo ""
