@@ -102,24 +102,25 @@ export PATH=$PATH:/usr/local/go/bin
 echo "✅ Golang ready"
 
 # =========================
-# kubectl (repo oficial)
+# Kubectl
 # =========================
 echo "☸️ Installing kubectl..."
 
-if ! command -v kubectl &> /dev/null; then
-  sudo install -m 0755 -d /etc/apt/keyrings
+if ! command -v kubectl >/dev/null 2>&1; then
+    sudo install -m 0755 -d /etc/apt/keyrings
 
-  add_gpg_key \
-    https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key \
-    /etc/apt/keyrings/kubernetes.gpg
+    curl -fsSL \
+      https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key \
+      | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes.gpg
 
-  echo \
-    "deb [signed-by=/etc/apt/keyrings/kubernetes.gpg] \
-    https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /" | \
-    sudo tee /etc/apt/sources.list.d/kubernetes.list
+    sudo chmod 644 /etc/apt/keyrings/kubernetes.gpg
 
-  sudo apt-get update -y
-  sudo apt-get install -y kubectl
+    cat <<EOF | sudo tee /etc/apt/sources.list.d/kubernetes.list >/dev/null
+deb [signed-by=/etc/apt/keyrings/kubernetes.gpg] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /
+EOF
+
+    sudo apt-get update
+    sudo apt-get install -y kubectl
 fi
 
 echo "✅ kubectl ready"
