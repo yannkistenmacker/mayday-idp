@@ -1,5 +1,6 @@
 # mayday-idp 
 Platform Engineering lab project focused on GitOps and developer self-service.
+<img width="1862" height="719" alt="image" src="https://github.com/user-attachments/assets/0c57ca4b-7abd-41d0-998e-a8dc6120e7b4" />
 
 # 🧪 Laboratory IDP (Internal Developer Platform)
 
@@ -139,4 +140,4 @@ Beyond being a technical lab, the IDP also serves as a **portfolio asset**, demo
 This repository is **not just about tools**, but about **architecture, standardization, and developer experience**.
 
 It provides a solid foundation for future evolution, whether for advanced studies or real corporate use cases.
-<img width="1862" height="719" alt="image" src="https://github.com/user-attachments/assets/0c57ca4b-7abd-41d0-998e-a8dc6120e7b4" />
+
