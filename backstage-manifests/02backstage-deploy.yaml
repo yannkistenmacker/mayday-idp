@@ -1,6 +1,6 @@
 # kubernetes/backstage.yaml
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
 metadata:
   name: backstage
   namespace: backstage
@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: backstage
-          image: kisten/backstage:3.0.7
+          image: kisten/backstage:3.0.6
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -42,6 +42,13 @@ spec:
         - name: backstage-config
           configMap:
             name: backstage-config
+  strategy:
+    canary:
+      steps:
+        - setWeight: 20
+        - pause: { duration: 60 }
+        - setWeight: 50
+        - pause: { duration: 60 }  
 # Uncomment if health checks are enabled in your app:
 # https://backstage.io/docs/plugins/observability#health-checks
 #          readinessProbe:
