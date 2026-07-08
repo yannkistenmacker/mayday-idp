@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: backstage
-          image: kisten/backstage:3.0.6
+          image: kisten/backstage:3.0.7
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
