@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'backstage/**'
+      - './github/workflows/build.yaml'
 
 env:
   IMAGE_NAME: kisten/backstage
