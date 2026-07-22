@@ -108,32 +108,7 @@ grep -q "/usr/local/go/bin" "$HOME/.bashrc" || \
 
 export PATH=$PATH:/usr/local/go/bin
 
-<<<<<<< HEAD
 echo "✅ Go $(go version) ready"
-=======
-echo "✅ Golang ready"
-
-echo "☸️ Installing kubectl..."
-
-if ! command -v kubectl >/dev/null 2>&1; then
-    sudo install -m 0755 -d /etc/apt/keyrings
-
-    curl -fsSL \
-      https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key \
-      | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes.gpg
-
-    sudo chmod 644 /etc/apt/keyrings/kubernetes.gpg
-
-    cat <<EOF | sudo tee /etc/apt/sources.list.d/kubernetes.list >/dev/null
-deb [signed-by=/etc/apt/keyrings/kubernetes.gpg] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /
-EOF
-
-    sudo apt-get update
-    sudo apt-get install -y kubectl
-fi
-
-echo "✅ kubectl ready"
->>>>>>> 42dd1f8 (upload backstage)
 
 # =========================
 # k3s (single-node lab)
