@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - 'backstage/**'
-      - './github/workflows/*'
+      - '.github/workflows/*'
 
 env:
   IMAGE_NAME: kisten/backstage
@@ -20,6 +20,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Enable Corepack
+        run: corepack enable
 
       - name: Set up Node
         uses: actions/setup-node@v4
