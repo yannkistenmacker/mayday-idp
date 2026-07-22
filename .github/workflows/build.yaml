@@ -68,9 +68,7 @@ jobs:
           file: ./backstage/packages/backend/Dockerfile
           push: true
           tags: |
-            ${{ env.IMAGE_NAME }}:${{ env.VERSION }}
             ${{ env.IMAGE_NAME }}:${{ env.SHA_TAG }}
-            ${{ env.IMAGE_NAME }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
