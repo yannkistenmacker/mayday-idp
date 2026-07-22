@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'backstage/**'
 
 env:
   IMAGE_NAME: kisten/backstage
