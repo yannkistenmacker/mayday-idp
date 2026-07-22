@@ -43,7 +43,7 @@ jobs:
         run: yarn tsc
 
       - name: Build backend
-        working-directory: backstage/packages/backend/src
+        working-directory: backstage/
         run: yarn build:backend
 
       - name: Set image tags

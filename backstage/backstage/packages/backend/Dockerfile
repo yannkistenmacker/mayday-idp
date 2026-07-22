@@ -32,6 +32,15 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get install -y --no-install-recommends libsqlite3-dev && \
     rm -rf /var/lib/apt/lists/*
 
+
+WORKDIR /app
+RUN chown node:node /app
+
+# Pre-create the Yarn global folder owned by `node`. BuildKit creates the
+# parent dirs of the cache mount below as root, which would otherwise make
+# `yarn` (running as uid 1000) fail to mkdir /home/node/.yarn/berry/index.
+RUN mkdir -p /home/node/.yarn/berry && chown -R node:node /home/node/.yarn
+
 # Creating DIR
 RUN mkdir -p /home/node/.yarn && chown -R node:node /home/node/.yarn
 
