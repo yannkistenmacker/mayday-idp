@@ -1,0 +1,8 @@
+apiVersion: v2
+name: backstage
+description: Backstage IDP portal (Argo Rollout)
+type: application
+# version = chart version; bump on template/values structure changes.
+version: 0.1.0
+# appVersion is informational; the deployed image tag lives in values.image.tag.
+appVersion: "1.0.0"
