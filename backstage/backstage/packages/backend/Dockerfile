@@ -32,6 +32,9 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get install -y --no-install-recommends libsqlite3-dev && \
     rm -rf /var/lib/apt/lists/*
 
+# Creating DIR
+RUN mkdir -p /home/node/.yarn && chown -R node:node /home/node/.yarn
+
 # Corepack enable
 RUN corepack enable
 ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
