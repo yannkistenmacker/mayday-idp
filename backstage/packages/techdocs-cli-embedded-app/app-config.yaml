@@ -1,0 +1,13 @@
+app:
+  title: Techdocs Preview App
+  baseUrl: http://localhost:3000
+
+backend:
+  baseUrl: http://localhost:3000
+
+techdocs:
+  builder: 'external'
+  sanitizer:
+    # Allow live reload locally. Added in this config to avoid updating the main techdocs plugin.
+    allowedCustomElementTagNameRegExp: '^live-reload$'
+    allowedCustomElementAttributeNameRegExp: '^live-reload-(epoch|request-id)$'

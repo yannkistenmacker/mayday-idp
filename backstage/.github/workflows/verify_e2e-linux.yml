@@ -1,0 +1,80 @@
+name: E2E Linux
+on:
+  # NOTE: If you change these you must update verify_e2e-linux-noop.yml as well
+  pull_request:
+    paths-ignore:
+      - '.changeset/**'
+      - 'contrib/**'
+      - 'docs/**'
+      - 'microsite/**'
+      - 'beps/**'
+  push:
+    branches: [master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432/tcp
+        # needed because the postgres container does not provide a healthcheck
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [22.x, 24.x]
+
+    env:
+      CI: true
+      NODE_OPTIONS: --max-old-space-size=8192 --no-node-snapshot --experimental-vm-modules
+
+    name: E2E Linux ${{ matrix.node-version }}
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Configure Git
+        run: |
+          git config --global user.email noreply@backstage.io
+          git config --global user.name 'GitHub e2e user'
+
+      - name: use node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: https://registry.npmjs.org/ # Needed for auth
+      - name: yarn install
+        uses: backstage/actions/yarn-install@a3895cac2a515224a101c4a2b962b216ed0c9ac8 # v0.7.5
+        with:
+          cache-prefix: ${{ runner.os }}-v${{ matrix.node-version }}
+
+      - run: yarn tsc
+      - run: yarn backstage-cli repo build
+        # BUI has a custom build script and needs to be built separately
+      - run: yarn --cwd packages/ui build
+      - name: run E2E test
+        run: |
+          sudo sysctl fs.inotify.max_user_watches=524288
+          yarn e2e-test run
+        env:
+          BACKSTAGE_TEST_DISABLE_DOCKER: 1
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
