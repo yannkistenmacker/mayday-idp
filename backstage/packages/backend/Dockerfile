@@ -31,6 +31,15 @@ RUN pip3 install mkdocs-techdocs-core==1.1.7
 # From here on we use the least-privileged `node` user to run the backend.
 WORKDIR /app
 RUN chown node:node /app
+# Pre-create the Yarn global folder owned by `node`. BuildKit creates the
+# parent dirs of the cache mount below as root, which would otherwise make
+# `yarn` (running as uid 1000) fail to mkdir /home/node/.yarn/berry/index.
+RUN mkdir -p /home/node/.yarn/berry && chown -R node:node /home/node/.yarn
+
+# Corepack enable
+RUN corepack enable
+ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+
 USER node
 
 
