@@ -135,6 +135,45 @@ Beyond being a technical lab, the IDP also serves as a **portfolio asset**, demo
 
 ---
 
+## 🔐 Secrets (Sealed Secrets)
+
+Secrets are **never** committed in plaintext. The Backstage GitHub credentials
+(`backstage-secrets`) are stored as an **encrypted** `SealedSecret` that only the
+in-cluster `sealed-secrets` controller can decrypt. The `env-up.sh` script installs
+the controller (namespace `kube-system`).
+
+**Bootstrap (one-time, after `env-up.sh`):**
+
+1. **Rotate the GitHub credentials.** In GitHub → *Settings → Developer settings →
+   your GitHub App / OAuth App*, generate a new client secret (assume any
+   previously committed value is compromised).
+2. **Install the `kubeseal` CLI** locally
+   (https://github.com/bitnami-labs/sealed-secrets/releases).
+3. **Seal the secret** (writes the encrypted `charts/backstage/templates/sealedsecret.yaml`):
+
+   ```bash
+   GITHUB_CLIENT_ID=<new-client-id> \
+   GITHUB_CLIENT_SECRET=<new-client-secret> \
+   ./scripts/seal-backstage-secret.sh
+   ```
+
+4. **Commit and push** the generated file — it is encrypted and safe to store in Git:
+
+   ```bash
+   git add charts/backstage/templates/sealedsecret.yaml
+   git commit -m "chore(secrets): seal backstage-secrets"
+   git push
+   ```
+
+   Argo CD applies the `SealedSecret`; the controller decrypts it into the
+   `backstage-secrets` Secret, consumed by the Backstage Rollout via `envFrom`.
+
+> ⚠️ The sealing key belongs to the cluster. If you recreate the cluster
+> (`kind delete`/`create`), re-run the seal step — the old `SealedSecret` can no
+> longer be decrypted.
+
+---
+
 ## 📎 Final Notes
 
 This repository is **not just about tools**, but about **architecture, standardization, and developer experience**.

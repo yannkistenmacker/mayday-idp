@@ -1,0 +1,41 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: backstage
+  labels:
+    {{- include "backstage.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "backstage.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "backstage.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: backstage
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.containerPort }}
+          command:
+            - node
+          args:
+            {{- toYaml .Values.args | nindent 12 }}
+          envFrom:
+            {{- toYaml .Values.extraEnvFrom | nindent 12 }}
+          volumeMounts:
+            - name: backstage-config
+              mountPath: /app/app-config.production.yaml
+              subPath: app-config.production.yaml
+      volumes:
+        - name: backstage-config
+          configMap:
+            name: backstage-config
+  strategy:
+    canary:
+      steps:
+        {{- toYaml .Values.rollout.canary.steps | nindent 8 }}

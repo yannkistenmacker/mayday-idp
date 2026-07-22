@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backstage-config
+  labels:
+    {{- include "backstage.labels" . | nindent 4 }}
+data:
+  app-config.production.yaml: |
+    app:
+      title: {{ .Values.config.title }}
+      baseUrl: {{ .Values.config.baseUrl }}
+
+    backend:
+      baseUrl: {{ .Values.config.baseUrl }}
+      listen:
+        port: {{ .Values.containerPort }}
+        host: 0.0.0.0
+      cors:
+        origin: {{ .Values.config.baseUrl }}
+
+      database:
+        client: pg
+        connection:
+          host: {{ .Values.config.database.host }}
+          port: {{ .Values.config.database.port }}
+          user: ${POSTGRES_USER}
+          password: ${POSTGRES_PASSWORD}
+          database: {{ .Values.config.database.name }}

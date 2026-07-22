@@ -244,6 +244,24 @@ kubectl rollout status deployment/argocd-server -n argocd --timeout=300s
 echo "✅ Argo CD ready"
 
 # =========================
+# Sealed Secrets (Bitnami)
+# =========================
+echo "🔐 Installing Sealed Secrets controller..."
+
+helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets
+helm repo update
+
+helm upgrade --install sealed-secrets sealed-secrets/sealed-secrets \
+  --namespace kube-system \
+  --set fullnameOverride=sealed-secrets
+
+kubectl rollout status deployment/sealed-secrets -n kube-system --timeout=180s
+
+echo "✅ Sealed Secrets ready"
+echo "   Controller: sealed-secrets (namespace kube-system)"
+echo "   Seal the Backstage secret with: scripts/seal-backstage-secret.sh"
+
+# =========================
 # Validação final
 # =========================
 echo ""
