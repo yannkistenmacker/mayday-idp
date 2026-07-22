@@ -18,6 +18,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+          cache-dependency-path: backstage/yarn.lock
+
+      - name: Install dependencies
+        working-directory: backstage
+        run: yarn install --immutable
+
+      - name: Generate types
+        working-directory: backstage
+        run: yarn tsc
+
+      - name: Build backend
+        working-directory: backstage
+        run: yarn build:backend
+
       - name: Set image tags
         id: vars
         run: |
@@ -36,7 +55,8 @@ jobs:
       - name: Build and push image
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: ./backstage
+          file: ./backstage/packages/backend/Dockerfile
           push: true
           tags: |
             ${{ env.IMAGE_NAME }}:${{ env.VERSION }}
