@@ -44,6 +44,11 @@ RUN mkdir -p /home/node/.yarn/berry && chown -R node:node /home/node/.yarn
 # Creating DIR
 RUN mkdir -p /home/node/.yarn && chown -R node:node /home/node/.yarn
 
+# BuildKit cria o pai do cache mount (/home/node/.cache) como root, o que faz o
+# corepack (uid 1000) falhar ao criar /home/node/.cache/node/corepack. Pré-criamos
+# o diretório como `node` para que ele permaneça gravável pelo usuário node.
+RUN mkdir -p /home/node/.cache && chown -R node:node /home/node/.cache
+
 # Corepack enable
 RUN corepack enable
 ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
