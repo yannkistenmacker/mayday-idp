@@ -3,7 +3,7 @@ image:
   repository: kisten/backstage
   # tag is the single source of truth for what gets deployed.
   # CI (build.yaml) bumps this to the built commit SHA on every push to main.
-  tag: "9f2097c"
+  tag: "c1e34c6"
   pullPolicy: IfNotPresent
 containerPort: 7007
 # Args passed to `node` in the container.
