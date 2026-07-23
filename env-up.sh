@@ -227,6 +227,7 @@ helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets
 helm repo update
 
 helm upgrade --install sealed-secrets sealed-secrets/sealed-secrets \
+  --take-ownership \
   --namespace kube-system \
   --set fullnameOverride=sealed-secrets
 
