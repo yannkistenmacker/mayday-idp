@@ -233,9 +233,19 @@ kubectl apply -f "https://github.com/bitnami-labs/sealed-secrets/releases/downlo
 
 kubectl rollout status deployment/sealed-secrets-controller -n kube-system --timeout=180s
 
+KUBESEAL_VERSION=0.38.4
+curl -fsSL -o /tmp/kubeseal.tar.gz \
+  "https://github.com/bitnami-labs/sealed-secrets/releases/download/v${KUBESEAL_VERSION}/kubeseal-${KUBESEAL_VERSION}-linux-amd64.tar.gz"
+tar -xzf /tmp/kubeseal.tar.gz -C /tmp kubeseal
+sudo install -m 0755 /tmp/kubeseal /usr/local/bin/kubeseal
+rm -f /tmp/kubeseal.tar.gz /tmp/kubeseal
+kubeseal --version
+
 echo "✅ Sealed Secrets ready"
 echo "   Controller: sealed-secrets-controller (namespace kube-system)"
 echo "   Seal the Backstage secret with: scripts/seal-backstage-secret.sh"
+
+
 
 # =========================
 # Argo Rollouts controller
