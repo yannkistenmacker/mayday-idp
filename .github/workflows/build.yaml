@@ -37,7 +37,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: backstage/backstage
-        run: yarn install --immutable
+        run: yarn install
 
       - name: Generate types
         working-directory: backstage/backstage
