@@ -42,7 +42,9 @@ ingress:
   className: traefik
   host: backstage.local
   tls:
-    enabled: true
+    # Lab: serve over HTTP through the ingress controller (no cert needed).
+    # For TLS, set enabled=true and provide the backstage-tls secret.
+    enabled: false
     secretName: backstage-tls
 
 # App configuration rendered into the backstage-config ConfigMap.
