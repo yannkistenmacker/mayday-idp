@@ -238,6 +238,43 @@ echo "   Controller: sealed-secrets-controller (namespace kube-system)"
 echo "   Seal the Backstage secret with: scripts/seal-backstage-secret.sh"
 
 # =========================
+# Argo Rollouts controller
+# =========================
+# The Backstage workload is a kind: Rollout, which needs the Argo Rollouts
+# controller (separate from Argo CD).
+echo "🚦 Installing Argo Rollouts controller..."
+
+kubectl get namespace argo-rollouts &> /dev/null || kubectl create namespace argo-rollouts
+kubectl apply -n argo-rollouts \
+  -f https://github.com/argoproj/argo-rollouts/releases/latest/download/install.yaml
+
+kubectl rollout status deployment/argo-rollouts -n argo-rollouts --timeout=180s
+
+echo "✅ Argo Rollouts ready"
+
+# =========================
+# Traefik (ingress controller)
+# =========================
+# k3s ships Traefik but it was disabled above (--disable traefik), so install
+# it via Helm to serve the Backstage Ingress (class: traefik). LoadBalancer is
+# picked up by k3s servicelb and bound to the node IP on ports 80/443.
+echo "🌐 Installing Traefik ingress controller..."
+
+helm repo add traefik https://traefik.github.io/charts
+helm repo update
+
+helm upgrade --install traefik traefik/traefik \
+  --namespace traefik --create-namespace \
+  --set ingressClass.enabled=true \
+  --set ingressClass.name=traefik \
+  --set ingressClass.isDefaultClass=true \
+  --set service.type=LoadBalancer
+
+kubectl rollout status deployment/traefik -n traefik --timeout=180s
+
+echo "✅ Traefik ready (Ingress class: traefik)"
+
+# =========================
 # Validação final
 # =========================
 echo ""
