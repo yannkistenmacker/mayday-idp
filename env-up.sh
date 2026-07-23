@@ -223,18 +223,16 @@ echo "✅ Argo CD ready"
 # =========================
 echo "🔐 Installing Sealed Secrets controller..."
 
-helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets
-helm repo update
+# The Bitnami Helm repo (GitHub Pages) was retired and charts.bitnami.com moved
+# to Broadcom, so install the controller directly from the project's release
+# manifest (no Helm repo dependency).
+SEALED_SECRETS_VERSION="v0.38.4"
+kubectl apply -f "https://github.com/bitnami-labs/sealed-secrets/releases/download/${SEALED_SECRETS_VERSION}/controller.yaml"
 
-helm upgrade --install sealed-secrets sealed-secrets/sealed-secrets \
-  --take-ownership \
-  --namespace kube-system \
-  --set fullnameOverride=sealed-secrets
-
-kubectl rollout status deployment/sealed-secrets -n kube-system --timeout=180s
+kubectl rollout status deployment/sealed-secrets-controller -n kube-system --timeout=180s
 
 echo "✅ Sealed Secrets ready"
-echo "   Controller: sealed-secrets (namespace kube-system)"
+echo "   Controller: sealed-secrets-controller (namespace kube-system)"
 echo "   Seal the Backstage secret with: scripts/seal-backstage-secret.sh"
 
 # =========================
