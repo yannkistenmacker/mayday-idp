@@ -208,7 +208,9 @@ helm upgrade --install argocd argo/argo-cd \
   -f - <<'EOF'
 server:
   service:
-    type: ClusterIP
+    type: NodePort
+    nodePortHttp: 30080
+    nodePortHttps: 30443
 configs:
   params:
     server.insecure: true
@@ -252,8 +254,9 @@ kubectl get pods -n argocd
 echo ""
 echo "🎉 DevOps Lab READY"
 echo ""
-echo "➡️  Argo CD access:"
-echo "   kubectl port-forward svc/argocd-server -n argocd 8080:80"
+NODE_IP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="InternalIP")].address}' 2>/dev/null)
+echo "➡️  Argo CD access (NodePort):"
+echo "   http://${NODE_IP:-<IP-do-node>}:30080"
 echo ""
 echo "➡️  Admin password:"
 echo "   kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath='{.data.password}' | base64 -d"
