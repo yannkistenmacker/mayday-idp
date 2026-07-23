@@ -19,6 +19,7 @@ jobs:
     runs-on: self-hosted
     permissions:
       contents: write
+      pull-requests: write
 
     steps:
       - name: Checkout code
@@ -73,12 +74,15 @@ jobs:
           cache-to: type=gha,mode=max
 
       # GitOps write-back: pin the just-built image (by commit SHA) into the
-      # Helm values that Argo CD renders, then commit it back to Git.
-      # Only on push to main — never on PRs. Touches only charts/backstage/**,
-      # which is outside this workflow's trigger paths, so it won't re-trigger
-      # the build ([skip ci] is added as belt-and-suspenders).
-      - name: Bump image tag in Helm values (GitOps write-back)
+      # Helm values that Argo CD renders. main is protected by a ruleset that
+      # requires a PR (1 approval), so instead of pushing to main we open a PR
+      # with the bump. Merge it to deploy. Runs only on push to main, never PRs.
+      # The bump branch touches only charts/backstage/**, outside this
+      # workflow's trigger paths, so merging it won't re-trigger the build.
+      - name: Open PR to bump image tag (GitOps write-back)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           VALUES=charts/backstage/values.yaml
@@ -89,12 +93,19 @@ jobs:
             export PATH="$RUNNER_TEMP:$PATH"
           fi
           yq -i '.image.tag = strenv(SHA_TAG)' "$VALUES"
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
           if git diff --quiet -- "$VALUES"; then
-            echo "Image tag unchanged; nothing to commit."
+            echo "Image tag unchanged; nothing to do."
             exit 0
           fi
+          BRANCH="deploy/bump-${SHA_TAG}"
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git switch -c "$BRANCH"
           git add "$VALUES"
-          git commit -m "chore(deploy): backstage image tag -> ${SHA_TAG} [skip ci]"
-          git push origin HEAD:main
+          git commit -m "chore(deploy): backstage image tag -> ${SHA_TAG}"
+          git push -f origin "$BRANCH"
+          # Open the PR (idempotent: ignore error if one already exists for this branch).
+          gh pr create --base main --head "$BRANCH" \
+            --title "chore(deploy): backstage image -> ${SHA_TAG}" \
+            --body "Automated image bump to \`${SHA_TAG}\`. Merge to deploy via Argo CD." \
+            || echo "PR already exists for ${BRANCH}"
