@@ -20,7 +20,7 @@ set -euo pipefail
 : "${GITHUB_CLIENT_SECRET:?set GITHUB_CLIENT_SECRET to the (rotated) client secret}"
 
 NAMESPACE="${NAMESPACE:-backstage}"
-CONTROLLER_NAME="${CONTROLLER_NAME:-sealed-controller}"
+CONTROLLER_NAME="${CONTROLLER_NAME:-sealed-secrets-controller}"
 CONTROLLER_NS="${CONTROLLER_NS:-kube-system}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
