@@ -33,18 +33,18 @@ jobs:
         with:
           node-version: 22
           cache: yarn
-          cache-dependency-path: backstage/yarn.lock
+          cache-dependency-path: backstage/backstage/yarn.lock
 
       - name: Install dependencies
-        working-directory: backstage
+        working-directory: backstage/backstage
         run: yarn install --immutable
 
       - name: Generate types
-        working-directory: backstage
+        working-directory: backstage/backstage
         run: yarn tsc
 
       - name: Build backend
-        working-directory: backstage/
+        working-directory: backstage/backstage/packages/backend
         run: yarn build:backend
 
       - name: Set image tags
@@ -65,8 +65,8 @@ jobs:
       - name: Build and push image
         uses: docker/build-push-action@v6
         with:
-          context: ./backstage
-          file: ./backstage/packages/backend/Dockerfile
+          context: ./backstage/backstage
+          file: ./backstage/backstage/packages/backend/Dockerfile
           push: true
           tags: |
             ${{ env.IMAGE_NAME }}:${{ env.SHA_TAG }}
